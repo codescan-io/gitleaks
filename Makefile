@@ -4,7 +4,7 @@ PKG=github.com/zricethezav/gitleaks
 VERSION := `git fetch --tags && git tag | sort -V | tail -1`
 LDFLAGS=-ldflags "-X=github.com/zricethezav/gitleaks/v8/version.Version=$(VERSION)"
 COVER=--cover --coverprofile=cover.out
-BINARY_NAME=gitleaks-server
+BINARY_NAME=gitleaks_server
 
 test-cover:
 	go test -v ./... --race $(COVER) $(PKG)
@@ -33,7 +33,7 @@ lint:
 
 clean:
 	rm -rf profile
-	rm -f $(BINARY_NAME)-*
+	rm -f $(BINARY_NAME)_*
 	find . -type f -name '*.got.*' -delete
 	find . -type f -name '*.out' -delete
 
