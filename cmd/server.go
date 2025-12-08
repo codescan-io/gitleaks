@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +33,8 @@ type serverScanResponse struct {
 }
 
 var (
-	serverAddr string
+	serverAddr       string
+	shutdownAfterStr string
 )
 
 // gitleaks server --addr :8080
@@ -53,6 +55,20 @@ var serverCmd = &cobra.Command{
 
 		// Reuse existing config helper
 		cfg := Config(cmd)
+
+		// Auto-shutdown support
+		if shutdownAfterStr != "" {
+			d, err := time.ParseDuration(shutdownAfterStr)
+			if err != nil {
+				return fmt.Errorf("invalid shutdown-after value %q: %w", shutdownAfterStr, err)
+			}
+			go func() {
+				log.Printf("Auto-shutdown scheduled after %v", d)
+				time.Sleep(d)
+				log.Printf("Auto-shutdown triggered after %v", d)
+				os.Exit(0)
+			}()
+		}
 
 		// Build detector like other commands do
 		// The 'source' string here is only used for config path resolution
@@ -77,6 +93,13 @@ var serverCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.Flags().StringVar(&serverAddr, "addr", ":8080", "HTTP listen address for server mode")
+	// CLI flag for auto-shutdown
+	serverCmd.Flags().StringVar(
+		&shutdownAfterStr,
+		"shutdown-after",
+		"",
+		"Auto-shutdown after a duration (e.g. 30s, 5m, 1h). Leave empty to disable.",
+	)
 }
 
 func handleScan(w http.ResponseWriter, r *http.Request, det *detect.Detector) {

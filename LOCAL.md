@@ -18,6 +18,10 @@ make all
 # To run gitleaks server 
 ./<GITLEAKSE_SERVER_ARTIFACTNAME> server --addr :8080
 
+# To run gitleaks server with auto shutdown
+# Auto-shutdown after a duration (e.g. 30s, 5m, 1h). Leave empty to disable.
+./<GITLEAKSE_SERVER_ARTIFACTNAME> server --addr :8080 --shutdown-after 30s
+
 # Test with CURL request for DIR
 curl -X POST http://localhost:8080/scan \
   -H "Content-Type: application/json" \
